@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'http://scheduler-backend-five.vercel.app/api', // Atualize isso para a URL do backend
+  baseURL: 'https://scheduler-backend-five.vercel.app/api', // Atualize isso para a URL do backend
 });
 
 export default instance;
