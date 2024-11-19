@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
 const NavContainer = styled.nav`
-  background-color: #007bff;
+  background-color: #ff69b4; /* Alterado para rosa */
   padding: 15px;
   display: flex;
   justify-content: space-between;
@@ -18,7 +18,7 @@ const NavLinks = styled.div`
 
   @media (max-width: 768px) {
     flex-direction: column;
-    background-color: #007bff;
+    background-color: #ff69b4; /* Alterado para rosa */
     position: absolute;
     top: 60px;
     right: 15px;
@@ -36,7 +36,7 @@ const StyledLink = styled(Link)`
   transition: color 0.3s;
 
   &:hover {
-    color: #d1e7ff;
+    color: #ffe4e1; /* Alterado para um tom mais claro de rosa */
   }
 `;
 
