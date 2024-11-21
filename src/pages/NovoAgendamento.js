@@ -5,17 +5,18 @@ import axios from '../api/axios';
 import debounce from 'lodash.debounce';
 
 const Container = styled.div`
-  padding: 20px;
+  padding: 30px;
   max-width: 600px;
   margin: 0 auto;
   background-color: #ffffff;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  font-family: 'Poppins', sans-serif; /* Usando a fonte Poppins */
 `;
 
 const Title = styled.h2`
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   color: #007bff;
   font-size: 2rem;
   font-weight: 600;
@@ -48,18 +49,22 @@ const Form = styled.form`
   }
 
   button {
-    padding: 14px;
-    background-color: #28a745;
+    padding: 16px;
+    background-color: #ff69b4;
     color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     font-size: 1.1rem;
-    transition: background-color 0.3s;
     font-weight: bold;
+    transition: background-color 0.3s;
 
     &:hover {
-      background-color: #218838;
+      background-color: #e55a8f;
+    }
+
+    &:active {
+      background-color: #d44c81;
     }
   }
 `;

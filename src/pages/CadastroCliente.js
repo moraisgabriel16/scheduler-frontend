@@ -1,15 +1,16 @@
-// src/pages/CadastroCliente.js
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import axios from '../api/axios';
 
 const Container = styled.div`
-  padding: 20px;
+  padding: 30px;
   max-width: 600px;
   margin: 0 auto;
   background-color: #ffffff;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  margin-top: 20px; /* Ajustado o margin-top para reduzir o espaço */
+  font-family: 'Poppins', sans-serif; /* Usando a fonte Poppins */
 `;
 
 const Title = styled.h2`
@@ -23,41 +24,52 @@ const Title = styled.h2`
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 25px; /* Aumentando o espaço entre os campos */
 
   label {
-    font-weight: bold;
+    font-weight: 600;
     font-size: 1.1rem;
     color: #333;
   }
 
   input {
-    padding: 14px;
+    padding: 16px;
     border-radius: 8px;
     border: 1px solid #ccc;
     font-size: 1rem;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: border-color 0.3s ease;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 
     &:focus {
-      border-color: #007bff;
+      border-color: #ff69b4; /* Cor da borda ao focar */
       outline: none;
+      box-shadow: 0 0 5px rgba(255, 105, 180, 0.5); /* Sombras ao focar */
+    }
+
+    &::placeholder {
+      color: #888;
     }
   }
 
   button {
-    padding: 14px;
-    background-color: #007bff;
+    padding: 16px;
+    background-color: #ff69b4;  /* Cor rosa da Navbar */
     color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 1.1rem;
-    transition: background-color 0.3s;
+    font-size: 1.2rem;
     font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s ease;
 
     &:hover {
-      background-color: #0056b3;
+      background-color: #e55a8f;  /* Tom de rosa mais escuro */
+      transform: translateY(-2px); /* Efeito de levitação ao passar o mouse */
+    }
+
+    &:active {
+      background-color: #d44c81;  /* Tom de rosa mais escuro ao pressionar */
+      transform: translateY(0); /* Volta ao normal ao pressionar */
     }
   }
 `;
@@ -65,6 +77,13 @@ const Form = styled.form`
 const InputContainer = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 5px;
+`;
+
+const ErrorMessage = styled.p`
+  color: red;
+  font-size: 0.9rem;
+  margin: 0;
 `;
 
 const CadastroCliente = () => {
@@ -76,13 +95,21 @@ const CadastroCliente = () => {
     dataNascimento: '',
   });
 
+  const [error, setError] = useState('');
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    setError(''); // Reset error message on change
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.nome === '' || formData.email === '' || formData.telefone === '' || formData.cpf === '' || formData.dataNascimento === '') {
+      setError('Todos os campos são obrigatórios!');
+      return;
+    }
+
     try {
       await axios.post('/clientes', formData);
       alert('Cliente cadastrado com sucesso!');
@@ -151,6 +178,9 @@ const CadastroCliente = () => {
             required
           />
         </InputContainer>
+
+        {error && <ErrorMessage>{error}</ErrorMessage>}
+
         <button type="submit">Cadastrar Cliente</button>
       </Form>
     </Container>

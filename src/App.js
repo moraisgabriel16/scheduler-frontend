@@ -8,10 +8,12 @@ import CadastroCliente from './pages/CadastroCliente';
 import ClienteDetails from './pages/ClienteDetails';
 import Configuracoes from './pages/Configuracoes';
 import NavBar from './components/NavBar';
+import GlobalStyle from './styles/GlobalStyles'; // Importação dos estilos globais
 
 function App() {
   return (
     <Router>
+      <GlobalStyle /> {/* Aplicação dos estilos globais */}
       <NavBar />
       <Routes>
         <Route path="/" element={<VerAgendamentos />} />

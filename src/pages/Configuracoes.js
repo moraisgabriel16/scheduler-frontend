@@ -1,20 +1,20 @@
-// src/pages/Configuracoes.js
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import axios from '../api/axios';
 
 const Container = styled.div`
-  padding: 20px;
+  padding: 30px;
   max-width: 800px;
   margin: 0 auto;
   background-color: #ffffff;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  font-family: 'Poppins', sans-serif; /* Usando a fonte Poppins */
 `;
 
 const Title = styled.h2`
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   color: #007bff;
   font-size: 2rem;
   font-weight: 600;
@@ -29,7 +29,7 @@ const Section = styled.div`
 `;
 
 const SectionTitle = styled.h3`
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   color: #333;
   font-weight: bold;
   font-size: 1.5rem;
@@ -39,12 +39,12 @@ const InputContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 
   input {
     flex: 1;
-    padding: 12px;
-    border-radius: 6px;
+    padding: 14px;
+    border-radius: 8px;
     border: 1px solid #ccc;
     font-size: 1rem;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -57,17 +57,21 @@ const InputContainer = styled.div`
   }
 
   button {
-    padding: 12px;
-    background-color: #28a745;
+    padding: 14px;
+    background-color: #ff69b4;
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.3s;
 
     &:hover {
-      background-color: #218838;
+      background-color: #e55a8f;
+    }
+
+    &:active {
+      background-color: #d44c81;
     }
   }
 `;
@@ -79,10 +83,10 @@ const ItemList = styled.ul`
 `;
 
 const Item = styled.li`
-  padding: 10px;
+  padding: 12px;
   background-color: #f1f1f1;
-  border-radius: 6px;
-  margin-bottom: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -93,9 +97,9 @@ const ButtonGroup = styled.div`
   gap: 10px;
 
   button {
-    padding: 6px 12px;
+    padding: 8px 14px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.3s;
