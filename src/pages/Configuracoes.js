@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import axios from '../api/axios';
+import * as XLSX from 'xlsx'; // Biblioteca para exportar Excel
 
+// Estilização dos componentes
 const Container = styled.div`
   padding: 30px;
   max-width: 800px;
@@ -9,7 +11,7 @@ const Container = styled.div`
   background-color: #ffffff;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
   border-radius: 12px;
-  font-family: 'Poppins', sans-serif; /* Usando a fonte Poppins */
+  font-family: 'Poppins', sans-serif;
 `;
 
 const Title = styled.h2`
@@ -124,41 +126,83 @@ const ButtonGroup = styled.div`
   }
 `;
 
+const Button = styled.button`
+  padding: 14px 20px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &.export {
+    background-color: #007bff;
+
+    &:hover {
+      background-color: #0056b3;
+    }
+  }
+
+  &.delete {
+    background-color: #dc3545;
+
+    &:hover {
+      background-color: #c82333;
+    }
+  }
+`;
+
+const ConfirmationInput = styled.input`
+  width: 100%;
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease;
+
+  &:focus {
+    border-color: #dc3545;
+    outline: none;
+  }
+`;
+
 const Configuracoes = () => {
   const [colaboradores, setColaboradores] = useState([]);
   const [procedimentos, setProcedimentos] = useState([]);
+  const [agendamentos, setAgendamentos] = useState([]);
   const [novoColaborador, setNovoColaborador] = useState('');
   const [novoProcedimento, setNovoProcedimento] = useState('');
   const [editColaborador, setEditColaborador] = useState(null);
   const [editProcedimento, setEditProcedimento] = useState(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
 
   useEffect(() => {
-    const fetchConfiguracoes = async () => {
+    const fetchData = async () => {
       try {
-        const [colaboradoresRes, procedimentosRes] = await Promise.all([
+        const [colaboradoresRes, procedimentosRes, agendamentosRes] = await Promise.all([
           axios.get('/colaboradores'),
           axios.get('/procedimentos'),
+          axios.get('/agendamentos'),
         ]);
         setColaboradores(colaboradoresRes.data);
         setProcedimentos(procedimentosRes.data);
+        setAgendamentos(agendamentosRes.data);
       } catch (error) {
-        console.error('Erro ao carregar configurações:', error);
+        console.error('Erro ao carregar dados:', error);
       }
     };
-    fetchConfiguracoes();
+    fetchData();
   }, []);
 
   const handleAddColaborador = async () => {
     if (!novoColaborador.trim()) return;
     try {
-      if (editColaborador) {
-        const response = await axios.put(`/colaboradores/${editColaborador._id}`, { nome: novoColaborador });
-        setColaboradores(colaboradores.map((col) => (col._id === editColaborador._id ? response.data : col)));
-        setEditColaborador(null);
-      } else {
-        const response = await axios.post('/colaboradores', { nome: novoColaborador });
-        setColaboradores([...colaboradores, response.data]);
-      }
+      const response = await axios.post('/colaboradores', { nome: novoColaborador });
+      setColaboradores([...colaboradores, response.data]);
       setNovoColaborador('');
     } catch (error) {
       console.error('Erro ao adicionar colaborador:', error);
@@ -168,51 +212,49 @@ const Configuracoes = () => {
   const handleAddProcedimento = async () => {
     if (!novoProcedimento.trim()) return;
     try {
-      if (editProcedimento) {
-        const response = await axios.put(`/procedimentos/${editProcedimento._id}`, { nome: novoProcedimento });
-        setProcedimentos(procedimentos.map((proc) => (proc._id === editProcedimento._id ? response.data : proc)));
-        setEditProcedimento(null);
-      } else {
-        const response = await axios.post('/procedimentos', { nome: novoProcedimento });
-        setProcedimentos([...procedimentos, response.data]);
-      }
+      const response = await axios.post('/procedimentos', { nome: novoProcedimento });
+      setProcedimentos([...procedimentos, response.data]);
       setNovoProcedimento('');
     } catch (error) {
       console.error('Erro ao adicionar procedimento:', error);
     }
   };
 
-  const handleEditColaborador = (colaborador) => {
-    setEditColaborador(colaborador);
-    setNovoColaborador(colaborador.nome);
-  };
-
-  const handleDeleteColaborador = async (id) => {
-    try {
-      await axios.delete(`/colaboradores/${id}`);
-      setColaboradores(colaboradores.filter((col) => col._id !== id));
-    } catch (error) {
-      console.error('Erro ao excluir colaborador:', error);
+  const handleExportExcel = () => {
+    if (agendamentos.length === 0) {
+      alert('Não há agendamentos para exportar.');
+      return;
     }
+
+    const worksheet = XLSX.utils.json_to_sheet(agendamentos);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Agendamentos');
+    XLSX.writeFile(workbook, 'Agendamentos.xlsx');
   };
 
-  const handleEditProcedimento = (procedimento) => {
-    setEditProcedimento(procedimento);
-    setNovoProcedimento(procedimento.nome);
-  };
+  const handleDeleteAllAgendamentos = async () => {
+    if (deleteConfirmation !== 'CONFIRMAR') {
+      alert('Por favor, digite "CONFIRMAR" para excluir todos os agendamentos.');
+      return;
+    }
 
-  const handleDeleteProcedimento = async (id) => {
-    try {
-      await axios.delete(`/procedimentos/${id}`);
-      setProcedimentos(procedimentos.filter((proc) => proc._id !== id));
-    } catch (error) {
-      console.error('Erro ao excluir procedimento:', error);
+    if (window.confirm('Tem certeza que deseja apagar todos os agendamentos? Essa ação não pode ser desfeita!')) {
+      try {
+        await axios.delete('/agendamentos');
+        setAgendamentos([]);
+        setDeleteConfirmation('');
+        alert('Todos os agendamentos foram apagados com sucesso.');
+      } catch (error) {
+        console.error('Erro ao apagar todos os agendamentos:', error);
+        alert('Ocorreu um erro ao tentar apagar os agendamentos.');
+      }
     }
   };
 
   return (
     <Container>
       <Title>Configurações</Title>
+
       <Section>
         <SectionTitle>Adicionar Colaborador</SectionTitle>
         <InputContainer>
@@ -222,20 +264,17 @@ const Configuracoes = () => {
             onChange={(e) => setNovoColaborador(e.target.value)}
             placeholder="Nome do Colaborador"
           />
-          <button onClick={handleAddColaborador}>{editColaborador ? 'Editar' : 'Adicionar'}</button>
+          <button onClick={handleAddColaborador}>Adicionar</button>
         </InputContainer>
         <ItemList>
           {colaboradores.map((colaborador) => (
             <Item key={colaborador._id}>
               {colaborador.nome}
-              <ButtonGroup>
-                <button className="edit" onClick={() => handleEditColaborador(colaborador)}>Editar</button>
-                <button className="delete" onClick={() => handleDeleteColaborador(colaborador._id)}>Excluir</button>
-              </ButtonGroup>
             </Item>
           ))}
         </ItemList>
       </Section>
+
       <Section>
         <SectionTitle>Adicionar Procedimento</SectionTitle>
         <InputContainer>
@@ -245,19 +284,31 @@ const Configuracoes = () => {
             onChange={(e) => setNovoProcedimento(e.target.value)}
             placeholder="Nome do Procedimento"
           />
-          <button onClick={handleAddProcedimento}>{editProcedimento ? 'Editar' : 'Adicionar'}</button>
+          <button onClick={handleAddProcedimento}>Adicionar</button>
         </InputContainer>
         <ItemList>
           {procedimentos.map((procedimento) => (
             <Item key={procedimento._id}>
               {procedimento.nome}
-              <ButtonGroup>
-                <button className="edit" onClick={() => handleEditProcedimento(procedimento)}>Editar</button>
-                <button className="delete" onClick={() => handleDeleteProcedimento(procedimento._id)}>Excluir</button>
-              </ButtonGroup>
             </Item>
           ))}
         </ItemList>
+      </Section>
+
+      <Section>
+        <SectionTitle>Exportar e Apagar Agendamentos</SectionTitle>
+        <Button className="export" onClick={handleExportExcel}>
+          Exportar Agendamentos em Excel
+        </Button>
+        <ConfirmationInput
+          type="text"
+          value={deleteConfirmation}
+          onChange={(e) => setDeleteConfirmation(e.target.value)}
+          placeholder='Digite "CONFIRMAR" para apagar todos os agendamentos'
+        />
+        <Button className="delete" onClick={handleDeleteAllAgendamentos}>
+          Apagar Todos os Agendamentos
+        </Button>
       </Section>
     </Container>
   );

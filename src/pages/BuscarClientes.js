@@ -11,7 +11,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  font-family: 'Poppins', sans-serif; /* Fonte Poppins */
+  font-family: 'Poppins', sans-serif;
 `;
 
 const Title = styled.h2`
@@ -108,6 +108,43 @@ const Button = styled.button`
   }
 `;
 
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+
+  button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #4a90e2;
+    color: white;
+    transition: opacity 0.3s;
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+`;
+
+const Loader = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 20px;
+  color: #4a90e2;
+`;
+
+// Adicionado ModalContent
 const ModalContent = styled.div`
   padding: 20px;
   background-color: #fff;
@@ -118,6 +155,7 @@ const ModalContent = styled.div`
   gap: 20px;
 `;
 
+// Adicionado ModalInput
 const ModalInput = styled.input`
   padding: 12px;
   border-radius: 8px;
@@ -138,16 +176,22 @@ const BuscarClientes = () => {
   const [selectedCliente, setSelectedCliente] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const clientesPerPage = 20;
+
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchClientes = async () => {
+      setLoading(true);
       try {
         const response = await axios.get('/clientes');
         setClientes(response.data);
       } catch (error) {
         console.error('Erro ao buscar clientes:', error);
       }
+      setLoading(false);
     };
 
     fetchClientes();
@@ -155,6 +199,7 @@ const BuscarClientes = () => {
 
   const handleInputChange = (e) => {
     setBusca(e.target.value);
+    setCurrentPage(1);
   };
 
   const filteredClientes = clientes.filter((cliente) =>
@@ -201,7 +246,7 @@ const BuscarClientes = () => {
     try {
       await axios.put(`/clientes/${formData._id}`, formData);
       alert('Cliente editado com sucesso!');
-      setClientes(clientes.map(cliente => cliente._id === formData._id ? formData : cliente));
+      setClientes(clientes.map((cliente) => (cliente._id === formData._id ? formData : cliente)));
       handleModalClose();
     } catch (error) {
       console.error('Erro ao editar cliente:', error);
@@ -214,28 +259,18 @@ const BuscarClientes = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const paginate = (array, pageSize, pageNumber) => {
+    return array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+  };
+
+  const totalPages = Math.ceil(filteredClientes.length / clientesPerPage);
+  const paginatedClientes = paginate(filteredClientes, clientesPerPage, currentPage);
+
   return (
     <Container>
       <Title>Buscar Clientes</Title>
-      <SearchContainer>
-        <Input
-          type="text"
-          value={busca}
-          onChange={handleInputChange}
-          placeholder="Digite o nome do cliente para buscar..."
-        />
-      </SearchContainer>
-      <ClientList>
-        {filteredClientes.map((cliente) => (
-          <ClientCard key={cliente._id} onClick={() => handleClienteClick(cliente._id)}>
-            <ClientName>{cliente.nome}</ClientName>
-          </ClientCard>
-        ))}
-      </ClientList>
-
       {selectedCliente && (
         <ClientDetails>
-          <Title>Detalhes do Cliente</Title>
           <DetailItem>
             <strong>Nome:</strong> {selectedCliente.nome}
           </DetailItem>
@@ -259,7 +294,45 @@ const BuscarClientes = () => {
         </ClientDetails>
       )}
 
-      {/* Modal para Editar Cliente */}
+      <SearchContainer>
+        <Input
+          type="text"
+          value={busca}
+          onChange={handleInputChange}
+          placeholder="Digite o nome do cliente para buscar..."
+        />
+      </SearchContainer>
+
+      {loading ? (
+        <Loader>Carregando clientes...</Loader>
+      ) : filteredClientes.length === 0 ? (
+        <Loader>Nenhum cliente encontrado.</Loader>
+      ) : (
+        <>
+          <ClientList>
+            {paginatedClientes.map((cliente) => (
+              <ClientCard key={cliente._id} onClick={() => handleClienteClick(cliente._id)}>
+                <ClientName>{cliente.nome}</ClientName>
+              </ClientCard>
+            ))}
+          </ClientList>
+          <PaginationContainer>
+            <button
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Anterior
+            </button>
+            <button
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Próxima
+            </button>
+          </PaginationContainer>
+        </>
+      )}
+
       <Modal
         isOpen={isModalOpen}
         onRequestClose={handleModalClose}
