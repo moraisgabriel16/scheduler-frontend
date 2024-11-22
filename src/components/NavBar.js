@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
 // Importação de fontes
-import '@fontsource/poppins'; // Certifique-se de ter instalado no projeto ou use Google Fonts
+import '@fontsource/poppins';
 
 const NavContainer = styled.nav`
   background: linear-gradient(90deg, #ff69b4, #ff1493);
@@ -11,9 +11,10 @@ const NavContainer = styled.nav`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 12px; /* Arredonda a Navbar */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra */
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   position: relative;
+  z-index: 100;
 `;
 
 const NavLinks = styled.div`
@@ -44,7 +45,7 @@ const StyledButton = styled(Link)`
   text-align: center;
   padding: 10px 20px;
   border: none;
-  border-radius: 8px; /* Arredonda os botões */
+  border-radius: 8px;
   transition: all 0.3s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
@@ -52,7 +53,26 @@ const StyledButton = styled(Link)`
     background-color: #ff1493;
     color: white;
     box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
-    transform: scale(1.05); /* Leve aumento no tamanho */
+    transform: scale(1.05);
+  }
+`;
+
+const LogoutButton = styled.button`
+  background-color: #ff4d4d;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  font-weight: bold;
+  font-size: 16px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #ff3333;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
   }
 `;
 
@@ -77,7 +97,7 @@ const Logo = styled.h1`
   letter-spacing: 1px;
 `;
 
-const NavBar = () => {
+const NavBar = ({ handleLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navRef = useRef(null);
 
@@ -101,11 +121,12 @@ const NavBar = () => {
       <Logo>Sistema de Agendamento</Logo>
       <HamburgerButton onClick={toggleMenu}>☰</HamburgerButton>
       <NavLinks isOpen={isOpen}>
-        <StyledButton to="/">Ver Agendamentos</StyledButton>
+        <StyledButton to="/ver-agendamentos">Ver Agendamentos</StyledButton>
         <StyledButton to="/novo-agendamento">Novo Agendamento</StyledButton>
         <StyledButton to="/buscar-clientes">Buscar Clientes</StyledButton>
         <StyledButton to="/cadastro-cliente">Cadastrar Cliente</StyledButton>
         <StyledButton to="/configuracoes">Configurações</StyledButton>
+        <LogoutButton onClick={handleLogout}>Sair</LogoutButton>
       </NavLinks>
     </NavContainer>
   );
